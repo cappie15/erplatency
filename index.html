@@ -1,257 +1,466 @@
 <!doctype html>
 <html lang="nl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ERP Latencies</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ERP Latencies</title>
 
-<!-- 1️⃣ Auto refresh elke minuut -->
-<meta http-equiv="refresh" content="10">
+  <style>
+    :root { color-scheme: light dark; }
 
-<style>
-:root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 24px;
+    }
 
-body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  margin: 24px;
-}
+    h1 { margin: 0 0 18px; font-size: 30px; }
+    h2 { margin: 0 0 14px; font-size: 18px; }
+    h3 { margin: 18px 0 10px; font-size: 18px; }
 
-h1 { margin: 0 0 20px; font-size: 30px; }
+    .card {
+      margin: 18px 0 24px;
+      padding: 22px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 10px 30px rgba(0,0,0,.40);
+    }
 
-h2 { margin: 0 0 16px; font-size: 18px; }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 50px;
+      align-items: center;
+      text-align: center;
+    }
 
-.card {
-  margin: 20px 0 30px;
-  padding: 24px;
-  border-radius: 14px;
-  background: linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-  border: 1px solid rgba(255,255,255,.10);
-  box-shadow: 0 10px 30px rgba(0,0,0,.40);
-}
+    .label {
+      font-weight: 650;
+      opacity: .92;
+    }
 
-/* 2️⃣ Perfecte badge-uitlijning */
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 50px;
-  text-align: center;
-  align-items: center;
-}
+    /* Overhead bigger (50% groter dan eerder ~26px) */
+    .overhead-value {
+      font-size: 39px;
+      font-weight: 850;
+      margin-top: 6px;
+      letter-spacing: .2px;
+    }
 
-.response-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
+    .green { color: #6dd56d; }
+    .orange { color: #ffb347; }
+    .red { color: #ff6b6b; }
 
-.response-label {
-  font-weight: 600;
-}
+    /* Response badges bovenaan: vaste breedte = nette alignment grey/blue */
+    .response-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
 
-.response-item img {
-  width: 360px;   /* vaste breedte voor perfecte grijs/blauw uitlijning */
-  height: auto;
-  display: block;
-}
+    .response-item img {
+      width: 360px;
+      height: auto;
+      display: block;
+    }
 
-/* 3️⃣ Overhead 50% groter */
-.overhead-value {
-  font-size: 39px; /* was ~26px */
-  font-weight: 800;
-  margin-top: 6px;
-}
+    /* Charts */
+    .chart-wrap {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 6px;
+    }
 
-.green { color: #6dd56d; }
-.orange { color: #ffb347; }
-.red { color: #ff6b6b; }
+    .chart-row {
+      display: grid;
+      grid-template-columns: 160px 1fr 160px;
+      gap: 14px;
+      align-items: center;
+    }
 
-.section {
-  margin-top: 30px;
-  border-top: 1px solid rgba(127,127,127,.35);
-  padding-top: 20px;
-}
+    .chart-bar {
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(127,127,127,.22);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+    }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 12px;
-}
+    .seg {
+      height: 100%;
+      display: inline-block;
+      vertical-align: top;
+    }
 
-th, td {
-  padding: 10px 8px;
-  border-bottom: 1px solid rgba(127,127,127,.25);
-}
+    .seg-direct {
+      background: rgba(96, 165, 250, .85); /* blauw */
+    }
 
-th {
-  text-align: left;
-  font-weight: 600;
-}
+    .seg-overhead-green { background: rgba(109, 213, 109, .85); }
+    .seg-overhead-orange { background: rgba(255, 179, 71, .85); }
+    .seg-overhead-red { background: rgba(255, 107, 107, .85); }
 
-td img {
-  height: 20px;
-}
+    .muted {
+      opacity: .85;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
 
-/* 4️⃣ Geen open-links meer */
-.badges img {
-  vertical-align: middle;
-}
-</style>
+    /* Tables aligned */
+    .section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(127,127,127,.35);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(127,127,127,.25);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    th {
+      text-align: left;
+      font-weight: 650;
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(6px);
+      background: rgba(127,127,127,.10);
+      z-index: 1;
+    }
+
+    td img {
+      height: 20px;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 1100px) {
+      .grid-3 { grid-template-columns: 1fr; text-align: left; }
+      .response-item { align-items: flex-start; }
+      .response-item img { width: 100%; max-width: 420px; }
+      .chart-row { grid-template-columns: 1fr; }
+      .muted { white-space: normal; }
+    }
+  </style>
 </head>
 
 <body>
 
-<h1>ERP Latencies</h1>
+  <h1>ERP Latencies</h1>
 
-<!-- OVERHEAD -->
-<div class="card">
-  <h2>Indirect overhead (middleware − direct)</h2>
-  <div class="grid-3">
-    <div>
-      <div class="response-label">Companies</div>
-      <div id="overhead-companies" class="overhead-value">–</div>
-    </div>
-    <div>
-      <div class="response-label">Articles</div>
-      <div id="overhead-articles" class="overhead-value">–</div>
-    </div>
-    <div>
-      <div class="response-label">Availabilities</div>
-      <div id="overhead-availabilities" class="overhead-value">–</div>
+  <!-- OVERHEAD -->
+  <div class="card">
+    <h2>Indirect overhead (middleware − direct)</h2>
+    <div class="grid-3">
+      <div>
+        <div class="label">Companies</div>
+        <div id="overhead-companies" class="overhead-value">–</div>
+      </div>
+      <div>
+        <div class="label">Articles</div>
+        <div id="overhead-articles" class="overhead-value">–</div>
+      </div>
+      <div>
+        <div class="label">Availabilities</div>
+        <div id="overhead-availabilities" class="overhead-value">–</div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- RESPONSE BLOKKEN -->
-<div class="card">
-  <h2>Direct – Response</h2>
-  <div class="grid-3" id="top-direct"></div>
+  <!-- STACKED CHARTS -->
+  <div class="card">
+    <h2>Stapelgrafiek per call (Direct + Overhead = Indirect totaal)</h2>
 
-  <div style="height:30px;"></div>
+    <div class="chart-wrap">
+      <!-- Companies -->
+      <div class="chart-row">
+        <div class="label">Companies</div>
+        <div class="chart-bar" aria-label="Companies stacked latency">
+          <span id="seg-companies-direct" class="seg seg-direct" style="width:0%"></span>
+          <span id="seg-companies-overhead" class="seg seg-overhead-orange" style="width:0%"></span>
+        </div>
+        <div class="muted" id="chart-companies-text">–</div>
+      </div>
 
-  <h2>Indirect (middleware) – Response</h2>
-  <div class="grid-3" id="top-indirect"></div>
-</div>
+      <!-- Articles -->
+      <div class="chart-row">
+        <div class="label">Articles</div>
+        <div class="chart-bar" aria-label="Articles stacked latency">
+          <span id="seg-articles-direct" class="seg seg-direct" style="width:0%"></span>
+          <span id="seg-articles-overhead" class="seg seg-overhead-orange" style="width:0%"></span>
+        </div>
+        <div class="muted" id="chart-articles-text">–</div>
+      </div>
 
-<div class="section">
+      <!-- Availabilities -->
+      <div class="chart-row">
+        <div class="label">Availabilities</div>
+        <div class="chart-bar" aria-label="Availabilities stacked latency">
+          <span id="seg-availabilities-direct" class="seg seg-direct" style="width:0%"></span>
+          <span id="seg-availabilities-overhead" class="seg seg-overhead-orange" style="width:0%"></span>
+        </div>
+        <div class="muted" id="chart-availabilities-text">–</div>
+      </div>
+    </div>
 
-<h3>Direct</h3>
-<table>
-<thead>
-<tr>
-<th>Categorie</th>
-<th>Status</th>
-<th>Uptime</th>
-<th>Ping</th>
-<th>Avg response</th>
-<th>Cert exp</th>
-<th>Response</th>
-</tr>
-</thead>
-<tbody id="tbody-direct"></tbody>
-</table>
+    <div class="muted" style="margin-top:10px;">
+      Direct wordt blauw weergegeven. Overhead krijgt dezelfde kleur als de overhead-classificatie (groen/oranje/rood).
+    </div>
+  </div>
 
-<h3>Indirect (middleware)</h3>
-<table>
-<thead>
-<tr>
-<th>Categorie</th>
-<th>Status</th>
-<th>Uptime</th>
-<th>Ping</th>
-<th>Avg response</th>
-<th>Cert exp</th>
-<th>Response</th>
-</tr>
-</thead>
-<tbody id="tbody-indirect"></tbody>
-</table>
+  <!-- TOP RESPONSES -->
+  <div class="card">
+    <h2>Direct – Response</h2>
+    <div class="grid-3" id="top-direct"></div>
 
-</div>
+    <div style="height:28px;"></div>
 
-<script>
-const base = "https://vrooamstatus.nl/api/badge";
+    <h2>Indirect (middleware) – Response</h2>
+    <div class="grid-3" id="top-indirect"></div>
+  </div>
 
-const monitorMap = {
-  companies:      { direct: 349, indirect: 184 },
-  articles:       { direct: 351, indirect: 185 },
-  availabilities: { direct: 352, indirect: 350 },
-};
+  <!-- TABLES -->
+  <div class="section">
 
-const metrics = ["status","uptime","ping","avg-response","cert-exp","response"];
+    <h3>Direct</h3>
+    <table>
+      <!-- vaste kolommen => uitlijning gelijk aan tweede tabel -->
+      <colgroup>
+        <col style="width: 140px;">
+        <col style="width: 160px;">
+        <col style="width: 240px;">
+        <col style="width: 250px;">
+        <col style="width: 280px;">
+        <col style="width: 170px;">
+        <col style="width: 140px;">
+      </colgroup>
 
-function badgeUrl(id, metric) {
-  return `${base}/${id}/${metric}`;
-}
+      <thead>
+        <tr>
+          <th>Categorie</th>
+          <th>Status</th>
+          <th>Uptime</th>
+          <th>Ping</th>
+          <th>Avg response</th>
+          <th>Cert exp</th>
+          <th>Response</th>
+        </tr>
+      </thead>
 
-function badgeCell(id, metric) {
-  return `<td class="badges">
-    <img src="${badgeUrl(id,metric)}" loading="lazy">
-  </td>`;
-}
+      <tbody id="tbody-direct"></tbody>
+    </table>
 
-function row(category, id) {
-  const cells = metrics.map(m => badgeCell(id,m)).join("");
-  return `<tr>
-    <td><strong>${category}</strong></td>
-    ${cells}
-  </tr>`;
-}
+    <h3>Indirect (middleware)</h3>
+    <table>
+      <colgroup>
+        <col style="width: 140px;">
+        <col style="width: 160px;">
+        <col style="width: 240px;">
+        <col style="width: 250px;">
+        <col style="width: 280px;">
+        <col style="width: 170px;">
+        <col style="width: 140px;">
+      </colgroup>
 
-function topCard(category, id) {
-  return `<div class="response-item">
-    <div class="response-label">${category} (${id})</div>
-    <img src="${badgeUrl(id,"response")}">
-  </div>`;
-}
+      <thead>
+        <tr>
+          <th>Categorie</th>
+          <th>Status</th>
+          <th>Uptime</th>
+          <th>Ping</th>
+          <th>Avg response</th>
+          <th>Cert exp</th>
+          <th>Response</th>
+        </tr>
+      </thead>
 
-function overheadClass(diff) {
-  if (diff < 50) return "green";
-  if (diff < 150) return "orange";
-  return "red";
-}
+      <tbody id="tbody-indirect"></tbody>
+    </table>
 
-async function fetchMs(id) {
-  const res = await fetch(badgeUrl(id,"response"), { cache: "no-store" });
-  const svg = await res.text();
-  const match = svg.match(/(\d+)\s*ms/i);
-  return match ? parseInt(match[1]) : null;
-}
+  </div>
 
-async function calculateOverhead() {
-  for (const category in monitorMap) {
-    const d = monitorMap[category].direct;
-    const i = monitorMap[category].indirect;
+  <script>
+    const base = "https://vrooamstatus.nl/api/badge";
 
-    const [directMs, indirectMs] = await Promise.all([
-      fetchMs(d),
-      fetchMs(i)
-    ]);
+    // Direct eerst, daarna indirect (middleware)
+    const monitorMap = {
+      companies:      { direct: 349, indirect: 184 },
+      articles:       { direct: 351, indirect: 185 },
+      availabilities: { direct: 352, indirect: 350 },
+    };
 
-    const el = document.getElementById(`overhead-${category}`);
+    const metrics = ["status","uptime","ping","avg-response","cert-exp","response"];
 
-    if (directMs !== null && indirectMs !== null) {
-      const diff = indirectMs - directMs;
-      el.textContent = diff + " ms";
-      el.classList.add(overheadClass(diff));
+    function badgeUrl(id, metric) {
+      return `${base}/${id}/${metric}`;
     }
-  }
-}
 
-// Render
-for (const category in monitorMap) {
-  const d = monitorMap[category].direct;
-  const i = monitorMap[category].indirect;
+    // cache buster voor images
+    function withBust(url) {
+      const sep = url.includes("?") ? "&" : "?";
+      return `${url}${sep}t=${Date.now()}`;
+    }
 
-  document.getElementById("top-direct").innerHTML += topCard(category,d);
-  document.getElementById("top-indirect").innerHTML += topCard(category,i);
+    function badgeCell(id, metric) {
+      return `<td>
+        <img data-badge="1" src="${withBust(badgeUrl(id, metric))}" loading="lazy" alt="${metric} ${id}">
+      </td>`;
+    }
 
-  document.getElementById("tbody-direct").innerHTML += row(category,d);
-  document.getElementById("tbody-indirect").innerHTML += row(category,i);
-}
+    function row(category, id) {
+      const cells = metrics.map(m => badgeCell(id, m)).join("");
+      return `<tr>
+        <td><strong>${category}</strong></td>
+        ${cells}
+      </tr>`;
+    }
 
-calculateOverhead();
-</script>
+    function topCard(category, id) {
+      return `<div class="response-item">
+        <div class="label">${category} (${id})</div>
+        <img data-badge="1" src="${withBust(badgeUrl(id, "response"))}" loading="lazy" alt="response ${id}">
+      </div>`;
+    }
+
+    function overheadTone(diff) {
+      if (diff < 50) return "green";
+      if (diff < 150) return "orange";
+      return "red";
+    }
+
+    function overheadSegClass(diff) {
+      const tone = overheadTone(diff);
+      return tone === "green" ? "seg-overhead-green" : tone === "orange" ? "seg-overhead-orange" : "seg-overhead-red";
+    }
+
+    async function fetchMsFromBadge(id) {
+      // haal de SVG tekst op en parse de eerste "<digits>ms"
+      const res = await fetch(withBust(badgeUrl(id, "response")), { cache: "no-store" });
+      const svg = await res.text();
+      const m = svg.match(/(\d+)\s*ms/i);
+      return m ? parseInt(m[1], 10) : null;
+    }
+
+    function setOverheadValue(category, diff) {
+      const el = document.getElementById(`overhead-${category}`);
+      el.classList.remove("green", "orange", "red");
+      el.textContent = `${diff} ms`;
+      el.classList.add(overheadTone(diff));
+    }
+
+    function setChart(category, directMs, overheadMs, totalMax) {
+      const directSeg = document.getElementById(`seg-${category}-direct`);
+      const overheadSeg = document.getElementById(`seg-${category}-overhead`);
+      const textEl = document.getElementById(`chart-${category}-text`);
+
+      // percent van max totaal, zodat alle drie bars vergelijkbaar blijven
+      const total = directMs + overheadMs;
+      const directPct = totalMax > 0 ? (directMs / totalMax) * 100 : 0;
+      const overheadPct = totalMax > 0 ? (overheadMs / totalMax) * 100 : 0;
+
+      directSeg.style.width = `${Math.max(0, directPct)}%`;
+      overheadSeg.style.width = `${Math.max(0, overheadPct)}%`;
+
+      // overhead kleur (zelfde als overhead)
+      overheadSeg.classList.remove("seg-overhead-green","seg-overhead-orange","seg-overhead-red");
+      overheadSeg.classList.add(overheadSegClass(overheadMs));
+
+      textEl.textContent = `Direct ${directMs} ms + Overhead ${overheadMs} ms = Indirect ${total} ms`;
+    }
+
+    function refreshAllBadgeImages() {
+      document.querySelectorAll('img[data-badge="1"]').forEach(img => {
+        const baseSrc = img.src.split("?")[0];
+        img.src = withBust(baseSrc);
+      });
+    }
+
+    async function recalcOverheadAndCharts() {
+      // 1) haal alle ms-waardes op
+      const categories = Object.keys(monitorMap);
+
+      const results = {};
+      for (const category of categories) {
+        const directId = monitorMap[category].direct;
+        const indirectId = monitorMap[category].indirect;
+
+        const [d, i] = await Promise.all([
+          fetchMsFromBadge(directId),
+          fetchMsFromBadge(indirectId),
+        ]);
+
+        if (d === null || i === null) continue;
+
+        const overhead = i - d;
+        results[category] = { direct: d, indirect: i, overhead };
+      }
+
+      // 2) bepaal max totaal voor charts (indirect = direct + overhead)
+      let maxTotal = 0;
+      for (const category of Object.keys(results)) {
+        const total = results[category].direct + results[category].overhead;
+        if (total > maxTotal) maxTotal = total;
+      }
+
+      // 3) render overhead + charts
+      for (const category of Object.keys(results)) {
+        const { direct, overhead } = results[category];
+        setOverheadValue(category, overhead);
+        setChart(category, direct, overhead, maxTotal);
+      }
+    }
+
+    function renderPageOnce() {
+      // top cards
+      const topDirect = document.getElementById("top-direct");
+      const topIndirect = document.getElementById("top-indirect");
+
+      // tables
+      const tbodyDirect = document.getElementById("tbody-direct");
+      const tbodyIndirect = document.getElementById("tbody-indirect");
+
+      topDirect.innerHTML = "";
+      topIndirect.innerHTML = "";
+      tbodyDirect.innerHTML = "";
+      tbodyIndirect.innerHTML = "";
+
+      for (const category of Object.keys(monitorMap)) {
+        const d = monitorMap[category].direct;
+        const i = monitorMap[category].indirect;
+
+        topDirect.insertAdjacentHTML("beforeend", topCard(category, d));
+        topIndirect.insertAdjacentHTML("beforeend", topCard(category, i));
+
+        tbodyDirect.insertAdjacentHTML("beforeend", row(category, d));
+        tbodyIndirect.insertAdjacentHTML("beforeend", row(category, i));
+      }
+    }
+
+    async function tick() {
+      refreshAllBadgeImages();
+      await recalcOverheadAndCharts();
+    }
+
+    // initial render
+    renderPageOnce();
+    tick();
+
+    // refresh elke minuut (zonder full reload)
+    setInterval(tick, 60000);
+  </script>
 
 </body>
 </html>
