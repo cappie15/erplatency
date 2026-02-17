@@ -3,30 +3,129 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Vrooamstatus – Monitoroverzicht</title>
+  <title>ERP Latency – Monitoroverzicht</title>
+
   <style>
     :root { color-scheme: light dark; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
-    h1 { margin: 0 0 8px; font-size: 22px; }
-    p { margin: 0 0 16px; opacity: .85; }
-    .wrap { max-width: 1200px; }
-    .section { margin-top: 20px; padding-top: 8px; border-top: 1px solid rgba(127,127,127,.35); }
-    .section h2 { margin: 10px 0 10px; font-size: 18px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid rgba(127,127,127,.25); vertical-align: middle; }
-    th { text-align: left; font-weight: 650; position: sticky; top: 0; backdrop-filter: blur(6px); background: rgba(127,127,127,.10); }
-    td small { opacity: .75; }
-    .type { white-space: nowrap; }
-    .cat { white-space: nowrap; font-weight: 600; }
-    .id { white-space: nowrap; font-variant-numeric: tabular-nums; }
-    .badges img { height: 20px; vertical-align: middle; }
-    .badges a { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-    .badges a:hover { text-decoration: underline; }
-    .muted { opacity: .8; }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 24px;
+    }
+
+    h1 { margin-bottom: 8px; }
+
+    .top-responses {
+      margin: 30px 0 40px;
+      padding: 20px;
+      border-radius: 12px;
+      background: rgba(127,127,127,.08);
+    }
+
+    .response-group {
+      margin-bottom: 25px;
+    }
+
+    .response-group h2 {
+      margin-bottom: 12px;
+    }
+
+    .response-grid {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .response-item {
+      text-align: center;
+    }
+
+    .response-item img {
+      height: 70px; /* Groot formaat */
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid rgba(127,127,127,.25);
+    }
+
+    th {
+      text-align: left;
+      font-weight: 600;
+    }
+
+    td img {
+      height: 20px;
+    }
   </style>
 </head>
 
 <body>
+
+<h1>ERP Monitoroverzicht</h1>
+
+<div class="top-responses">
+
+  <div class="response-group">
+    <h2>Via middleware – Response</h2>
+    <div class="response-grid">
+      <div class="response-item">
+        <div>Companies (184)</div>
+        <a href="https://vrooamstatus.nl/api/badge/184/response" target="_blank">
+          <img src="https://vrooamstatus.nl/api/badge/184/response">
+        </a>
+      </div>
+
+      <div class="response-item">
+        <div>Articles (185)</div>
+        <a href="https://vrooamstatus.nl/api/badge/185/response" target="_blank">
+          <img src="https://vrooamstatus.nl/api/badge/185/response">
+        </a>
+      </div>
+
+      <div class="response-item">
+        <div>Availabilities (350)</div>
+        <a href="https://vrooamstatus.nl/api/badge/350/response" target="_blank">
+          <img src="https://vrooamstatus.nl/api/badge/350/response">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="response-group">
+    <h2>Direct – Response</h2>
+    <div class="response-grid">
+      <div class="response-item">
+        <div>Companies (349)</div>
+        <a href="https://vrooamstatus.nl/api/badge/349/response" target="_blank">
+          <img src="https://vrooamstatus.nl/api/badge/349/response">
+        </a>
+      </div>
+
+      <div class="response-item">
+        <div>Articles (351)</div>
+        <a href="https://vrooamstatus.nl/api/badge/351/response" target="_blank">
+          <img src="https://vrooamstatus.nl/api/badge/351/response">
+        </a>
+      </div>
+
+      <div class="response-item">
+        <div>Availabilities (352)</div>
+        <a href="https://vrooamstatus.nl/api/badge/352/response" target="_blank">
+          <img src="https://vrooamstatus.nl/api/badge/352/response">
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
   <div class="wrap">
     <h1>Monitoroverzicht</h1>
     <p class="muted">
