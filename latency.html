@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vrooamstatus – Monitoroverzicht</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+    h1 { margin: 0 0 8px; font-size: 22px; }
+    p { margin: 0 0 16px; opacity: .85; }
+    .wrap { max-width: 1200px; }
+    .section { margin-top: 20px; padding-top: 8px; border-top: 1px solid rgba(127,127,127,.35); }
+    .section h2 { margin: 10px 0 10px; font-size: 18px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid rgba(127,127,127,.25); vertical-align: middle; }
+    th { text-align: left; font-weight: 650; position: sticky; top: 0; backdrop-filter: blur(6px); background: rgba(127,127,127,.10); }
+    td small { opacity: .75; }
+    .type { white-space: nowrap; }
+    .cat { white-space: nowrap; font-weight: 600; }
+    .id { white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .badges img { height: 20px; vertical-align: middle; }
+    .badges a { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .badges a:hover { text-decoration: underline; }
+    .muted { opacity: .8; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>Monitoroverzicht</h1>
+    <p class="muted">
+      Sets in volgorde: <strong>companies</strong>, <strong>articles</strong>, <strong>availabilities</strong>.
+      Badges worden live geladen vanaf <code>https://vrooamstatus.nl</code>.
+    </p>
+
+    <div class="section">
+      <h2>Via middleware</h2>
+      <table>
+        <thead>
+          <tr>
+            <th class="type">Route</th>
+            <th class="cat">Categorie</th>
+            <th class="id">Monitor</th>
+            <th>Status</th>
+            <th>Uptime</th>
+            <th>Ping</th>
+            <th>Avg response</th>
+            <th>Cert exp</th>
+            <th>Response</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-middleware"></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Direct</h2>
+      <table>
+        <thead>
+          <tr>
+            <th class="type">Route</th>
+            <th class="cat">Categorie</th>
+            <th class="id">Monitor</th>
+            <th>Status</th>
+            <th>Uptime</th>
+            <th>Ping</th>
+            <th>Avg response</th>
+            <th>Cert exp</th>
+            <th>Response</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-direct"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const base = "https://vrooamstatus.nl/api/badge";
+
+    // Afgeleid uit jouw beschrijving:
+    const monitors = [
+      { route: "middleware", category: "companies",       id: 184 },
+      { route: "middleware", category: "articles",        id: 185 },
+      { route: "middleware", category: "availabilities",  id: 350 },
+      { route: "direct",     category: "companies",       id: 349 },
+      { route: "direct",     category: "articles",        id: 351 },
+      { route: "direct",     category: "availabilities",  id: 352 },
+    ];
+
+    const metrics = [
+      { key: "status",       label: "Status" },
+      { key: "uptime",       label: "Uptime" },
+      { key: "ping",         label: "Ping" },
+      { key: "avg-response", label: "Avg response" },
+      { key: "cert-exp",     label: "Cert exp" },
+      { key: "response",     label: "Response" },
+    ];
+
+    function badgeUrl(id, metricKey) {
+      return `${base}/${id}/${metricKey}`;
+    }
+
+    function badgeCell(id, metric) {
+      const url = badgeUrl(id, metric.key);
+      // Klikbaar (handig bij troubleshooten) + img voor badge.
+      return `
+        <td class="badges">
+          <a href="${url}" target="_blank" rel="noopener">
+            <img src="${url}" alt="${metric.label} (${id})" loading="lazy" />
+            <small class="muted">open</small>
+          </a>
+        </td>
+      `;
+    }
+
+    function row(m) {
+      const cells = metrics.map(metric => badgeCell(m.id, metric)).join("");
+      return `
+        <tr>
+          <td class="type">${m.route}</td>
+          <td class="cat">${m.category}</td>
+          <td class="id">${m.id}</td>
+          ${cells}
+        </tr>
+      `;
+    }
+
+    const tbodyMiddleware = document.getElementById("tbody-middleware");
+    const tbodyDirect = document.getElementById("tbody-direct");
+
+    monitors.forEach(m => {
+      if (m.route === "middleware") tbodyMiddleware.insertAdjacentHTML("beforeend", row(m));
+      if (m.route === "direct") tbodyDirect.insertAdjacentHTML("beforeend", row(m));
+    });
+  </script>
+</body>
+</html>
