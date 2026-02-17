@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ERP Latency – Monitoroverzicht</title>
+  <title>ERP Latencies</title>
 
   <style>
     :root { color-scheme: light dark; }
@@ -13,179 +13,208 @@
       margin: 24px;
     }
 
-    h1 { margin-bottom: 8px; }
-
-    .top-responses {
-      margin: 30px 0 40px;
-      padding: 20px;
-      border-radius: 12px;
-      background: rgba(127,127,127,.08);
+    h1 {
+      margin: 0 0 18px;
+      font-size: 30px;
     }
 
-    .response-group {
-      margin-bottom: 25px;
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
     }
 
-    .response-group h2 {
-      margin-bottom: 12px;
+    h3 {
+      margin: 18px 0 10px;
+      font-size: 18px;
     }
 
-    .response-grid {
-      display: flex;
-      gap: 30px;
-      flex-wrap: wrap;
+    /* Cards */
+    .card {
+      margin: 18px 0 30px;
+      padding: 22px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 10px 30px rgba(0,0,0,.40);
     }
 
-    .response-item {
+    /* Grids */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      align-items: center;
       text-align: center;
     }
 
+    .response-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .response-label {
+      font-weight: 650;
+      opacity: .92;
+    }
+
     .response-item img {
-      height: 70px; /* Groot formaat */
+      height: 76px;
+      max-width: 100%;
+      display: block;
+    }
+
+    /* Overhead */
+    .overhead-value {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .green { color: #6dd56d; }
+    .orange { color: #ffb347; }
+    .red { color: #ff6b6b; }
+
+    /* Tables */
+    .section {
+      margin-top: 26px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(127,127,127,.35);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     th, td {
-      padding: 8px;
+      padding: 10px 8px;
       border-bottom: 1px solid rgba(127,127,127,.25);
+      vertical-align: middle;
     }
 
     th {
       text-align: left;
-      font-weight: 600;
+      font-weight: 650;
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(6px);
+      background: rgba(127,127,127,.10);
+      z-index: 1;
     }
 
     td img {
       height: 20px;
+      vertical-align: middle;
+    }
+
+    .badges a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .badges a:hover { text-decoration: underline; }
+
+    .muted { opacity: .8; }
+
+    @media (max-width: 980px) {
+      .grid-3 {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        text-align: left;
+      }
+      .response-item {
+        align-items: flex-start;
+      }
+      .response-item img { height: 70px; }
     }
   </style>
 </head>
 
 <body>
 
-<h1>ERP Monitoroverzicht</h1>
+  <h1>ERP Latencies</h1>
 
-<div class="top-responses">
-
-  <div class="response-group">
-    <h2>Via middleware – Response</h2>
-    <div class="response-grid">
-      <div class="response-item">
-        <div>Companies (184)</div>
-        <a href="https://vrooamstatus.nl/api/badge/184/response" target="_blank">
-          <img src="https://vrooamstatus.nl/api/badge/184/response">
-        </a>
+  <!-- OVERHEAD -->
+  <div class="card">
+    <h2>Indirect overhead (middleware − direct)</h2>
+    <div class="grid-3">
+      <div>
+        <div class="response-label">Companies</div>
+        <div id="overhead-companies" class="overhead-value">–</div>
       </div>
-
-      <div class="response-item">
-        <div>Articles (185)</div>
-        <a href="https://vrooamstatus.nl/api/badge/185/response" target="_blank">
-          <img src="https://vrooamstatus.nl/api/badge/185/response">
-        </a>
+      <div>
+        <div class="response-label">Articles</div>
+        <div id="overhead-articles" class="overhead-value">–</div>
       </div>
-
-      <div class="response-item">
-        <div>Availabilities (350)</div>
-        <a href="https://vrooamstatus.nl/api/badge/350/response" target="_blank">
-          <img src="https://vrooamstatus.nl/api/badge/350/response">
-        </a>
+      <div>
+        <div class="response-label">Availabilities</div>
+        <div id="overhead-availabilities" class="overhead-value">–</div>
       </div>
     </div>
   </div>
 
-  <div class="response-group">
+  <!-- TOP RESPONSES -->
+  <div class="card">
     <h2>Direct – Response</h2>
-    <div class="response-grid">
-      <div class="response-item">
-        <div>Companies (349)</div>
-        <a href="https://vrooamstatus.nl/api/badge/349/response" target="_blank">
-          <img src="https://vrooamstatus.nl/api/badge/349/response">
-        </a>
-      </div>
+    <div class="grid-3" id="top-direct"></div>
 
-      <div class="response-item">
-        <div>Articles (351)</div>
-        <a href="https://vrooamstatus.nl/api/badge/351/response" target="_blank">
-          <img src="https://vrooamstatus.nl/api/badge/351/response">
-        </a>
-      </div>
+    <div style="height: 26px;"></div>
 
-      <div class="response-item">
-        <div>Availabilities (352)</div>
-        <a href="https://vrooamstatus.nl/api/badge/352/response" target="_blank">
-          <img src="https://vrooamstatus.nl/api/badge/352/response">
-        </a>
-      </div>
-    </div>
+    <h2>Indirect (middleware) – Response</h2>
+    <div class="grid-3" id="top-indirect"></div>
   </div>
 
-</div>
+  <!-- TABLES -->
+  <div class="section">
 
-  <div class="wrap">
-    <h1>Monitoroverzicht</h1>
-    <p class="muted">
-      Sets in volgorde: <strong>companies</strong>, <strong>articles</strong>, <strong>availabilities</strong>.
-      Badges worden live geladen vanaf <code>https://vrooamstatus.nl</code>.
-    </p>
+    <h3>Direct</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Categorie</th>
+          <th>Status</th>
+          <th>Uptime</th>
+          <th>Ping</th>
+          <th>Avg response</th>
+          <th>Cert exp</th>
+          <th>Response</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-direct"></tbody>
+    </table>
 
-    <div class="section">
-      <h2>Via middleware</h2>
-      <table>
-        <thead>
-          <tr>
-            <th class="type">Route</th>
-            <th class="cat">Categorie</th>
-            <th class="id">Monitor</th>
-            <th>Status</th>
-            <th>Uptime</th>
-            <th>Ping</th>
-            <th>Avg response</th>
-            <th>Cert exp</th>
-            <th>Response</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-middleware"></tbody>
-      </table>
-    </div>
+    <h3>Indirect (middleware)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Categorie</th>
+          <th>Status</th>
+          <th>Uptime</th>
+          <th>Ping</th>
+          <th>Avg response</th>
+          <th>Cert exp</th>
+          <th>Response</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-indirect"></tbody>
+    </table>
 
-    <div class="section">
-      <h2>Direct</h2>
-      <table>
-        <thead>
-          <tr>
-            <th class="type">Route</th>
-            <th class="cat">Categorie</th>
-            <th class="id">Monitor</th>
-            <th>Status</th>
-            <th>Uptime</th>
-            <th>Ping</th>
-            <th>Avg response</th>
-            <th>Cert exp</th>
-            <th>Response</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-direct"></tbody>
-      </table>
-    </div>
   </div>
 
   <script>
     const base = "https://vrooamstatus.nl/api/badge";
 
-    // Afgeleid uit jouw beschrijving:
-    const monitors = [
-      { route: "middleware", category: "companies",       id: 184 },
-      { route: "middleware", category: "articles",        id: 185 },
-      { route: "middleware", category: "availabilities",  id: 350 },
-      { route: "direct",     category: "companies",       id: 349 },
-      { route: "direct",     category: "articles",        id: 351 },
-      { route: "direct",     category: "availabilities",  id: 352 },
-    ];
+    // Direct eerst, daarna indirect (middleware)
+    const monitorMap = {
+      companies:      { direct: 349, indirect: 184 },
+      articles:       { direct: 351, indirect: 185 },
+      availabilities: { direct: 352, indirect: 350 },
+    };
 
     const metrics = [
       { key: "status",       label: "Status" },
@@ -196,13 +225,17 @@
       { key: "response",     label: "Response" },
     ];
 
+    const topDirect = document.getElementById("top-direct");
+    const topIndirect = document.getElementById("top-indirect");
+    const tbodyDirect = document.getElementById("tbody-direct");
+    const tbodyIndirect = document.getElementById("tbody-indirect");
+
     function badgeUrl(id, metricKey) {
       return `${base}/${id}/${metricKey}`;
     }
 
     function badgeCell(id, metric) {
       const url = badgeUrl(id, metric.key);
-      // Klikbaar (handig bij troubleshooten) + img voor badge.
       return `
         <td class="badges">
           <a href="${url}" target="_blank" rel="noopener">
@@ -213,25 +246,82 @@
       `;
     }
 
-    function row(m) {
-      const cells = metrics.map(metric => badgeCell(m.id, metric)).join("");
+    function row(category, id) {
+      const cells = metrics.map(metric => badgeCell(id, metric)).join("");
       return `
         <tr>
-          <td class="type">${m.route}</td>
-          <td class="cat">${m.category}</td>
-          <td class="id">${m.id}</td>
+          <td><strong>${category}</strong></td>
           ${cells}
         </tr>
       `;
     }
 
-    const tbodyMiddleware = document.getElementById("tbody-middleware");
-    const tbodyDirect = document.getElementById("tbody-direct");
+    function topCard(category, id) {
+      const url = badgeUrl(id, "response");
+      return `
+        <div class="response-item">
+          <div class="response-label">${category} (${id})</div>
+          <a href="${url}" target="_blank" rel="noopener">
+            <img src="${url}" alt="Response (${id})" loading="lazy" />
+          </a>
+        </div>
+      `;
+    }
 
-    monitors.forEach(m => {
-      if (m.route === "middleware") tbodyMiddleware.insertAdjacentHTML("beforeend", row(m));
-      if (m.route === "direct") tbodyDirect.insertAdjacentHTML("beforeend", row(m));
-    });
+    function overheadClass(diff) {
+      if (diff < 50) return "green";
+      if (diff < 150) return "orange";
+      return "red";
+    }
+
+    async function fetchMsFromBadge(id) {
+      const res = await fetch(badgeUrl(id, "response"), { cache: "no-store" });
+      const svg = await res.text();
+
+      // Meest simpele/robuste parse: eerste "<digits>ms"
+      const m = svg.match(/(\d+)\s*ms/i);
+      return m ? parseInt(m[1], 10) : null;
+    }
+
+    async function calculateOverhead() {
+      const categories = Object.keys(monitorMap);
+
+      for (const category of categories) {
+        const directId = monitorMap[category].direct;
+        const indirectId = monitorMap[category].indirect;
+
+        const [d, i] = await Promise.all([
+          fetchMsFromBadge(directId),
+          fetchMsFromBadge(indirectId),
+        ]);
+
+        const el = document.getElementById(`overhead-${category}`);
+
+        if (d === null || i === null) {
+          el.textContent = "n/a";
+          continue;
+        }
+
+        const diff = i - d;
+        el.textContent = `${diff} ms`;
+        el.classList.add(overheadClass(diff));
+      }
+    }
+
+    // Render direct + indirect (in gewenste volgorde)
+    for (const category of Object.keys(monitorMap)) {
+      const directId = monitorMap[category].direct;
+      const indirectId = monitorMap[category].indirect;
+
+      topDirect.insertAdjacentHTML("beforeend", topCard(category, directId));
+      topIndirect.insertAdjacentHTML("beforeend", topCard(category, indirectId));
+
+      tbodyDirect.insertAdjacentHTML("beforeend", row(category, directId));
+      tbodyIndirect.insertAdjacentHTML("beforeend", row(category, indirectId));
+    }
+
+    calculateOverhead();
   </script>
+
 </body>
 </html>
